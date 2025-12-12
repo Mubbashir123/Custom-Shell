@@ -2,14 +2,20 @@
 #include <string>
 using namespace std;
 int main() {
-  cout<<"$ ";
   while(true)
- { string command;
+  { 
+    cout<<"$ ";
+    string command;
   getline(cin,command);
   if(command=="exit") break;
-  if(!command.empty())
+   
+  else if(command.find("echo")!=string::npos)
+  {
+    cout<<command.substr(5)<<endl;
+  }
+  
+  else
   cout<<command<<": command not found"<<endl;
-  cout<<"$ ";
 }
 
 
