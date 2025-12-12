@@ -6,7 +6,7 @@ int main() {
   while(true)
  { string command;
   getline(cin,command);
-  if(command=="exit") return;
+  if(command=="exit") break;
   if(!command.empty())
   cout<<command<<": command not found"<<endl;
   cout<<"$ ";
