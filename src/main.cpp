@@ -14,7 +14,7 @@ int main() {
     {
       cout<<command.substr(5)<<" is a shell builtin"<<endl;
     }
-    else cout<<command.substr(5)<<": command not found"<<endl;
+    else cout<<command.substr(5)<<": not found"<<endl;
   }
   else if(command.find("echo")!=string::npos)
   {
