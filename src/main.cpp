@@ -1,5 +1,13 @@
-#include <bits/stdc++.h>
-#include <sys/stat.h>
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
+#include <cwctype>
+#include <filesystem>
+#include <iostream>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <vector>
 using namespace std;
 int main()
 {
@@ -16,47 +24,50 @@ int main()
       {
         cout << command.substr(5) << " is a shell builtin" << endl;
       }
-      else
-      {
-        string cmd = command.substr(5);
-        char *pathenv = getenv("PATH");
-        if (pathenv == NULL)
-        {
-          cout << cmd << ": not found " << endl;
-          continue;
-        }
-        string path(pathenv);
-        bool f = false;
+      else 
+{
+    string cmd = command.substr(5);
 
-        char sep = ';'; // seperator for windows
-        int st = 0;
-        for (int i = 0; i <= path.size(); i++)
-        {
-          if (i == path.size() || path[i] == sep)
-          {
-            string dir = path.substr(st, i - st);
-            st = i + 1;
+    const char* pathEnv = getenv("PATH");
+    if (!pathEnv) {
+        cout << cmd << ": not found" << endl;
+        continue;
+    }
 
-            if (dir.empty())
-              continue;
+    string path(pathEnv);
+    path.push_back(':');   // sentinel to process last directory
 
-            string fullPath = dir + "/" + cmd;
+    bool found = false;
+    int prev = 0;
 
-            struct stat sb;
-            if(stat(fullPath.c_str(), &sb) == 0 && (sb.st_mode & S_IXUSR))
-            {
-              cout << cmd << " is " << fullPath << endl;
-              f = true;
-              break;
+    for (int i = 0; i < path.size(); i++) {
+        if (path[i] == ':') {
+            string dir = path.substr(prev, i - prev);
+            prev = i + 1;
+
+            if (dir.empty()) continue;
+
+            if (filesystem::exists(dir)) {
+                string fullPath = dir + "/" + cmd;
+
+                if (filesystem::exists(fullPath)) {
+                    auto perms = filesystem::status(fullPath).permissions();
+
+                    if ((perms & filesystem::perms::owner_exec) != filesystem::perms::none) {
+                        cout << cmd << " is " << fullPath << endl;
+                        found = true;
+                        break;
+                    }
+                }
             }
-          }
         }
+    }
 
-        if (!f)
-        {
-          cout << cmd << ": not found" << endl;
-        }
-      }
+    if (!found) {
+        cout << cmd << ": not found" << endl;
+    }
+}
+
     }
     else if (command.find("echo") != string::npos)
     {
