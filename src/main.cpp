@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include <unistd.h>
+#include <sys/stat.h>
 using namespace std;
 int main()
 {
@@ -42,7 +42,8 @@ int main()
 
             string fullPath = dir + "/" + cmd;
 
-            if (access(fullPath.c_str(), X_OK) == 0)
+            struct stat sb;
+            if(stat(fullPath.c_str(), &sb) == 0 && (sb.st_mode & S_IXUSR))
             {
               cout << cmd << " is " << fullPath << endl;
               f = true;
