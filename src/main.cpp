@@ -35,7 +35,7 @@ int main()
     }
 
     string path(pathEnv);
-    path.push_back(':');   // sentinel to process last directory
+    path.push_back(':');   
 
     bool found = false;
     int prev = 0;
@@ -47,11 +47,11 @@ int main()
 
             if (dir.empty()) continue;
 
-            if (filesystem::exists(dir)) {
+            if (exists(dir)) {
                 string fullPath = dir + "/" + cmd;
 
-                if (filesystem::exists(fullPath)) {
-                    auto perms = filesystem::status(fullPath).permissions();
+                if (exists(fullPath)) {
+                    auto perms = status(fullPath).permissions();
 
                     if ((perms & filesystem::perms::owner_exec) != filesystem::perms::none) {
                         cout << cmd << " is " << fullPath << endl;
