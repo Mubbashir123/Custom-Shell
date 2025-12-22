@@ -79,7 +79,7 @@ int main()
       int ret=system(command.c_str());
       if(ret!=0)
       {
-        cout<<command<<": commnad not found"<<endl;
+        cout<<command<<": command not found"<<endl;
       }
     }
   }
