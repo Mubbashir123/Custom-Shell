@@ -47,11 +47,11 @@ int main()
 
             if (dir.empty()) continue;
 
-            if (exists(dir)) {
+            if (filesystem::exists(dir)) {
                 string fullPath = dir + "/" + cmd;
 
-                if (exists(fullPath)) {
-                    auto perms = status(fullPath).permissions();
+                if (filesystem::exists(fullPath)) {
+                    auto perms = filesystem::status(fullPath).permissions();
 
                     if ((perms & filesystem::perms::owner_exec) != filesystem::perms::none) {
                         cout << cmd << " is " << fullPath << endl;
