@@ -26,7 +26,9 @@ int main()
       }
       else 
 {
-    string cmd = command.substr(5);
+    string cmd;
+    stringstream ss(command);
+    ss >> cmd;
 
     const char* pathEnv = getenv("PATH");
     if (!pathEnv) {
