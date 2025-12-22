@@ -74,6 +74,13 @@ int main()
       cout << command.substr(5) << endl;
     }
     else
-      cout << command << ": command not found" << endl;
+      
+    {
+      int ret=system(command.c_str());
+      if(ret!=0)
+      {
+        cout<<command<<": commnad not found"<<endl;
+      }
+    }
   }
 }
