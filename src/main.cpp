@@ -5,6 +5,33 @@
 #include <sstream>
 #include <string>
 using namespace std;
+vector<string> parseArgs(const string &line) {
+    vector<string> args;
+    string cur;
+    bool inQuotes = false;
+
+    for (int i = 0; i < line.size(); i++) {
+        char c = line[i];
+
+        if (c == '\'') {
+            inQuotes = !inQuotes;
+        }
+        else if (isspace(c) && !inQuotes) {
+            if (!cur.empty()) {
+                args.push_back(cur);
+                cur.clear();
+            }
+        }
+        else {
+            cur.push_back(c);
+        }
+    }
+
+    if (!cur.empty())
+        args.push_back(cur);
+
+    return args;
+}
 
 int main() {
     while (true) {
@@ -58,15 +85,21 @@ int main() {
                 cout << cmd << ": not found" << endl;
         }
 
-        else if (command.rfind("echo ", 0) == 0) {
-            cout << command.substr(5) << endl;
-        }
+        else if (command.rfind("echo", 0) == 0) {
+            auto args = parseArgs(command);
+
+            for (int i = 1; i < args.size(); i++) {
+                cout << args[i];
+                if (i + 1 < args.size()) cout << " ";
+            }
+                cout << endl;
+}
+
 
         else {
             
-            string cmd;
-            stringstream ss(command);
-            ss >> cmd;
+            auto args=parseArgs(command);
+            string cmd=args[0];
 
             const char *pathEnv = getenv("PATH");
             bool found = false;
