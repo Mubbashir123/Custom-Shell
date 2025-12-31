@@ -1,29 +1,37 @@
 #include <algorithm>
+#include <vector>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include<bits/stdc++.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 using namespace std;
-vector<string> parseArgs(const string &line) {
+vector<string> parseArgs(const string &line)
+{
     vector<string> args;
     string cur;
     bool inQuotes = false;
 
-    for (int i = 0; i < line.size(); i++) {
+    for (int i = 0; i < line.size(); i++)
+    {
         char c = line[i];
 
-        if (c == '\'') {
+        if (c == '\'')
+        {
             inQuotes = !inQuotes;
         }
-        else if (isspace(c) && !inQuotes) {
-            if (!cur.empty()) {
+        else if (isspace(c) && !inQuotes)
+        {
+            if (!cur.empty())
+            {
                 args.push_back(cur);
                 cur.clear();
             }
         }
-        else {
+        else
+        {
             cur.push_back(c);
         }
     }
@@ -34,105 +42,52 @@ vector<string> parseArgs(const string &line) {
     return args;
 }
 
-int main() {
-    while (true) {
+int main()
+{
+    while (true)
+    {
         cout << "$ ";
         string command;
-        getline(cin, command);
+        // getline(cin, command);
 
-        if (command == "exit")
-            break;
+        if(!getline(cin,command)) break;
 
-        else if (command.rfind("type ", 0) == 0) { 
-            string cmd = command.substr(5);
+        if(command.empty()) continue;
 
-            if (cmd == "echo" || cmd == "exit" || cmd == "type") {
-                cout << cmd << " is a shell builtin" << endl;
-                continue;
-            }
+        auto args = parseArgs(command);
+        if (args.empty()) continue;
 
-            const char *pathEnv = getenv("PATH");
-            if (!pathEnv) {
-                cout << cmd << ": not found" << endl;
-                continue;
-            }
-
-            string path(pathEnv);
-            path.push_back(':');
-
-            bool found = false;
-            int prev = 0;
-
-            for (int i = 0; i < path.size(); i++) {
-                if (path[i] == ':') {
-                    string dir = path.substr(prev, i - prev);
-                    prev = i + 1;
-
-                    if (dir.empty()) continue;
-
-                    string fullPath = dir + "/" + cmd;
-                    if (filesystem::exists(fullPath)) {
-                        auto perms = filesystem::status(fullPath).permissions();
-                        if ((perms & filesystem::perms::owner_exec) != filesystem::perms::none) {
-                            cout << cmd << " is " << fullPath << endl;
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!found)
-                cout << cmd << ": not found" << endl;
+        if (args[0] == "exit") break;
+        
+        else if (args[0] == "cd") {
+             if (args.size() < 2) {
+                 chdir(getenv("HOME"));
+             } else {
+                 if (chdir(args[1].c_str()) != 0) {
+                     perror("cd failed");
+                 }
+             }
+             continue;
         }
 
-        else if (command.rfind("echo", 0) == 0) {
-            auto args = parseArgs(command);
-
-            for (int i = 1; i < args.size(); i++) {
-                cout << args[i];
-                if (i + 1 < args.size()) cout << " ";
-            }
-                cout << endl;
-}
-
-
         else {
-            
-            auto args=parseArgs(command);
-            string cmd=args[0];
-
-            const char *pathEnv = getenv("PATH");
-            bool found = false;
-
-            if (pathEnv) {
-                string path(pathEnv);
-                path.push_back(':');
-                int prev = 0;
-
-                for (int i = 0; i < path.size(); i++) {
-                    if (path[i] == ':') {
-                        string dir = path.substr(prev, i - prev);
-                        prev = i + 1;
-
-                        if (dir.empty()) continue;
-
-                        string fullPath = dir + "/" + cmd;
-                        if (filesystem::exists(fullPath)) {
-                            auto perms = filesystem::status(fullPath).permissions();
-                            if ((perms & filesystem::perms::owner_exec) != filesystem::perms::none) {
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (found) {
-                system(command.c_str());
-            } else {
-                cout << cmd << ": command not found" << endl;
+            pid_t pid = fork(); 
+            if (pid < 0) {
+                perror("Fork failed");
+            } 
+            else if (pid == 0) {
+                
+                vector<char*> c_args;
+                for (auto &a : args) c_args.push_back(&a[0]);
+                c_args.push_back(NULL); 
+                execvp(c_args[0], c_args.data());
+                
+                perror("Exec failed"); 
+                exit(1); 
+            } 
+            else {
+                int status;
+                waitpid(pid, &status, 0);
             }
         }
     }
