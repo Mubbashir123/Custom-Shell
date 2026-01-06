@@ -129,7 +129,7 @@ int main()
                     perror("Pipe failed");
                     return 0;
                 }
-                if(fork==0) 
+                if(fork()==0) 
                 {
                     close(fd[0]);
                     dup2(fd[1],STDOUT_FILENO);
@@ -138,7 +138,7 @@ int main()
                     runCommand(leftargs);
                     
                 }
-                if(fork==0) 
+                if(fork()==0) 
                 {
                     close(fd[1]);
                     dup2(fd[0],STDIN_FILENO);
