@@ -113,8 +113,48 @@ int main()
         }
 
         else
-        {
-            pid_t pid = fork();
+        {   
+            auto pipeit=find(args.begin(),args.end(),"|");
+            if(pipeit!=args.end())
+            {
+                auto pos=distance(args.begin(),pipeit);
+
+                vector<string>leftargs(args.begin(),args.begin()+pos);
+                vector<string>rightargs(args.begin()+pos+1,args.end());
+
+
+                int fd[2];
+                if(pipe(fd)==-1)
+                {
+                    perror("Pipe failed");
+                    return 0;
+                }
+                if(fork==0) 
+                {
+                    close(fd[0]);
+                    dup2(fd[1],STDOUT_FILENO);
+                    close(fd[1]);
+    
+                    runCommand(leftargs);
+                    
+                }
+                if(fork==0) 
+                {
+                    close(fd[1]);
+                    dup2(fd[0],STDIN_FILENO);
+                    close(fd[0]);
+    
+                    runCommand(rightargs);
+                    
+                }
+                close(fd[0]);
+                close(fd[1]);
+
+                wait(NULL);
+                wait(NULL);
+            }
+            else
+            {pid_t pid = fork();
             if (pid < 0)
             {
                 perror("Fork failed");
@@ -127,7 +167,7 @@ int main()
             else
             {
                 wait(NULL);
-            }
+            }}
         }
     }
 }
