@@ -21,3 +21,30 @@ You need a C++ compiler (`g++`) and the Readline library installed.
 ```bash
 sudo apt update
 sudo apt install g++ libreadline-dev
+
+### 2. Compilation Command (The Build Step)
+```markdown
+```bash
+g++ main.cpp -o myshell -lreadline
+
+### 3. Run Command
+```markdown
+```bash
+./myshell
+
+### 4. Example Usage Commands
+You can paste this entire block under an **Examples** section:
+
+```markdown
+```bash
+# 1. Basic Command
+$ ls -l
+
+# 2. Pipeline (Pipe)
+$ ls -l | grep main
+
+# 3. File Redirection
+$ echo "Success" > output.txt
+
+# 4. Built-in Command
+$ cd /home
