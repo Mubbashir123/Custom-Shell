@@ -1,4 +1,4 @@
-# Custom Linux Shell 🐚
+# Custom Linux Shell 
 
 A POSIX-compliant command-line shell built from scratch in C++. 
 
